@@ -27,8 +27,8 @@ class PositionalEncoding(nn.Module):
         pe = torch.zeros(seq_len, d_model)
         
         # Position Column Vectors (Rows: SequenceLength, Columns: Dimensions... 512)
-        position = torch.arrange(0, seq_len).unsqueeze(1) # Row 0 to Row sequence len -1 column vector
-        div_term = torch.exp(torch.arrange(0, d_model, 2).float() * -m.log(10000.0/d_model)) # Xvector containing dision term in every other dimension of the 512
+        position = torch.arange(0, seq_len, dtype=torch.float).unsqueeze(1) # Row 0 to Row sequence len -1 column vector
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-m.log(10000.0) / d_model)) # Xvector containing dision term in every other dimension of the 512
 
         # Even column vectors
         pe[:,0::2] = torch.sin(position * div_term) # Row X Column Multiplication
@@ -41,7 +41,7 @@ class PositionalEncoding(nn.Module):
         self.register_buffer('pe', pe)
 
     def forward(self, x):
-        x = x + (self.pe[:,x.shape[1],:]).requires_grad(False) # Tensor Addition of Embeddings and Positionings
+        x = x + (self.pe[:, :x.shape[1], :]).requires_grad_(False) # Tensor Addition of Embeddings and Positionings
         return self.dropout(x) # Noise Reduction by Regularization
 
 
